@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.5.0-0-g9aa0fdb  Build Version: 1.5.7004.21443
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="sunny">
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="0.20582 0.0014686 0.56216"
+        rpy="0 0 0" />
+      <mass
+        value="15.712" />
+      <inertia
+        ixx="0.93576"
+        ixy="-0.0015797"
+        ixz="0.071338"
+        iyy="0.52524"
+        iyz="0.00094839"
+        izz="1.0195" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://sunny_gazebo/meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://sunny_gazebo/meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="universal_wheel_link">
+    <inertial>
+      <origin
+        xyz="-0.0015321 -3.3133E-08 -0.012795"
+        rpy="0 0 0" />
+      <mass
+        value="0.10446" />
+      <inertia
+        ixx="0.00013522"
+        ixy="-3.8014E-11"
+        ixz="-1.2947E-05"
+        iyy="0.00015124"
+        iyz="-2.1959E-10"
+        izz="0.00018481" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://sunny_gazebo/meshes/universal_wheel_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://sunny_gazebo/meshes/universal_wheel_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint_uw"
+    type="continuous">
+    <origin
+      xyz="0.48 0 0.077"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="universal_wheel_link" />
+    <axis
+      xyz="0 0 1" />
+    <safety_controller
+      k_velocity="0" />
+  </joint>
+  <link
+    name="front_wheel_link">
+    <inertial>
+      <origin
+        xyz="5.5511E-17 5.7406E-20 -3.4694E-18"
+        rpy="0 0 0" />
+      <mass
+        value="0.3927" />
+      <inertia
+        ixx="0.00032725"
+        ixy="-2.2442E-20"
+        ixz="2.0493E-37"
+        iyy="0.00049087"
+        iyz="8.35E-21"
+        izz="0.00032725" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://sunny_gazebo/meshes/front_wheel_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://sunny_gazebo/meshes/front_wheel_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint_fw"
+    type="continuous">
+    <origin
+      xyz="-0.0405 0 -0.097"
+      rpy="0 0 0" />
+    <parent
+      link="universal_wheel_link" />
+    <child
+      link="front_wheel_link" />
+    <axis
+      xyz="0 1 0" />
+    <safety_controller
+      k_velocity="0" />
+  </joint>
+  <link
+    name="left_wheel_link">
+    <inertial>
+      <origin
+        xyz="-1.0479E-14 0.0084162 -7.8679E-16"
+        rpy="0 0 0" />
+      <mass
+        value="0.31181" />
+      <inertia
+        ixx="0.00063103"
+        ixy="9.1891E-18"
+        ixz="-8.4716E-19"
+        iyy="0.0011244"
+        iyz="6.318E-18"
+        izz="0.00063103" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://sunny_gazebo/meshes/left_wheel_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://sunny_gazebo/meshes/left_wheel_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint_lw"
+    type="continuous">
+    <origin
+      xyz="0 0.289 0"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="left_wheel_link" />
+    <axis
+      xyz="0 1 0" />
+    <safety_controller
+      k_velocity="0" />
+  </joint>
+  <link
+    name="right_wheel_link">
+    <inertial>
+      <origin
+        xyz="-1.0479E-14 -0.0084162 -7.8679E-16"
+        rpy="0 0 0" />
+      <mass
+        value="0.31181" />
+      <inertia
+        ixx="0.00063103"
+        ixy="-9.1891E-18"
+        ixz="-8.4716E-19"
+        iyy="0.0011244"
+        iyz="-6.318E-18"
+        izz="0.00063103" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://sunny_gazebo/meshes/right_wheel_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://sunny_gazebo/meshes/right_wheel_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint_rw"
+    type="continuous">
+    <origin
+      xyz="0 -0.289 0"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="right_wheel_link" />
+    <axis
+      xyz="0 1 0" />
+    <safety_controller
+      k_velocity="0" />
+  </joint>
+</robot>

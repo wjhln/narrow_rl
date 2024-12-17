@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<robot name="robot1" xmlns:xacro="http://ros.org/wiki/xacro">
+  <!-- <xacro:arg name="laser_visual" default="false"/> -->
+  <!-- <xacro:arg name="imu_visual"   default="false"/> -->
+
+  <gazebo reference="base_link">
+    <material>Gazebo/Grey</material>
+  </gazebo>
+
+  <gazebo>
+    <plugin name="robot1" filename="libgazebo_ros_diff_drive.so">
+      <commandTopic>/robot1/cmd_vel</commandTopic>
+      <odometryTopic>/robot1/odom</odometryTopic>
+      <odometryFrame>odom</odometryFrame>
+      <odometrySource>world</odometrySource>
+      <publishOdomTF>false</publishOdomTF>
+      <robotBaseFrame>base_link</robotBaseFrame>
+      <publishWheelTF>false</publishWheelTF>
+      <publishTf>true</publishTf>
+      <publishWheelJointState>true</publishWheelJointState>
+      <legacyMode>false</legacyMode>
+      <updateRate>10</updateRate>
+      <leftJoint>joint_lw</leftJoint>
+      <rightJoint>joint_rw</rightJoint>
+      <wheelSeparation>0.578</wheelSeparation>
+      <wheelDiameter>0.14</wheelDiameter>
+      <wheelAcceleration>1</wheelAcceleration>
+      <wheelTorque>200</wheelTorque>
+      <rosDebugLevel>na</rosDebugLevel>
+    </plugin>
+  </gazebo>
+
+  <gazebo>
+    <plugin name="robot1_base_footprint" filename="libgazebo_ros_p3d.so">
+      <alwaysOn>true</alwaysOn>
+      <updateRate>50.0</updateRate>
+      <bodyName>base_link</bodyName>
+      <topicName>/robot1/state</topicName>
+      <gaussianNoise>0.01</gaussianNoise>
+      <frameName>world</frameName>
+      <xyzOffsets>0 0 0</xyzOffsets>
+      <rpyOffsets>0 0 0</rpyOffsets>
+    </plugin>
+  </gazebo>
+
+</robot>
