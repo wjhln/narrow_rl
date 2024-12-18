@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # coding:utf-8
 
 import rospy
@@ -14,7 +14,6 @@ import numpy as np
 from shapely.geometry import Point, Polygon
 from visualization_msgs.msg import Marker, MarkerArray
 from std_msgs.msg import Bool
-
 
 def _top_laser_scan_callback(msg):
     # 车框

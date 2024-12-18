@@ -8,6 +8,9 @@ from geometry_msgs.msg import Twist
 import rospy
 from std_srvs.srv import Empty
 from geometry_msgs.msg import Vector3
+from std_msgs.msg import Bool
+from sensor_msgs.msg import LaserScan
+import time
 
 class MyEnv(gym.Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
@@ -17,13 +20,14 @@ class MyEnv(gym.Env):
         self.reset_world_proxy = rospy.ServiceProxy('/gazebo/reset_world', Empty)
         self.reset_simulation_proxy = rospy.ServiceProxy('/gazebo/reset_simulation', Empty)
         self.move_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
+        rospy.Subscriber("/collision", Bool, self._collision_state_callback)
+        rospy.Subscriber("/scan", LaserScan, self._laser_scan_callback)
+        self.is_collision = False
+        self.laser_scan = []
         self.action_space = spaces.Discrete(6)
-        self.observation_space = spaces.Box(low=np.float32(0.1), high=np.float32(8.0), shape=(361,), dtype=np.float32)
+        self.observation_space = spaces.Box(low=np.float32(0.1), high=np.float32(25.0), shape=(7,), dtype=np.float32)
 
     def step(self, action):
-        """
-        执行动作
-        """
         assert self.action_space.contains(action), "无效的动作"
 
         velocity = np.float32(0.5)
@@ -44,31 +48,20 @@ class MyEnv(gym.Env):
             angular_speed = -0
         elif action == 4:  # LEFT BACK
             linear_speed = -velocity
-            angular_speed = - steer
+            angular_speed = steer
         elif action == 5:  # FIGHTBACK
             linear_speed = -velocity
             angular_speed = - steer
 
 
-
-        reward = self._compute_reward(action)
-        done = self._is_done()
-        observation = 1
+        observation = self.laser_scan
+        done = self.is_collision
+        reward = self._compute_reward(observation, action, done)
         info = {}
-        rate = rospy.Rate(5)
-
-        # move_msg = Vector3()
-        # move_msg.x = linear_speed
-        # move_msg.z = angular_speed
-        # # rate.sleep()
-        # self.move_pub.publish(move_msg)
+        rate = rospy.Rate(10)
         self._move_base(linear_speed, angular_speed)
 
-
-        
         rate.sleep()
-        # self.move_pub.publish(move_msg)
-
         return observation, reward, done, info
         # done = bool(
         #     self.state >= 10.0
@@ -86,9 +79,12 @@ class MyEnv(gym.Env):
 
 
     def reset(self, seed=None, return_info=False, options=None):
-        # self.gazebo.resetSim()
-        # self.gazebo.resetWorld()
+
+        self._move_base(0, 0)
         self.reset_world_proxy()
+        time.sleep(1)
+
+        observation = self.laser_scan
         # self.reset_simulation_proxy()
         # We need the following line to seed self.np_random
         # self.action_space.seed(42)
@@ -103,14 +99,30 @@ class MyEnv(gym.Env):
 
         # observation = self._get_obs()
         # info = self._get_info()
-        return 0
+        return observation
 
 
-    def _compute_reward(self,action):
-        if action == 0 or action == 1 or action == 2:
-            reward = 1
+    def _compute_reward(self, observations, action, done):
+
+        if not done:
+
+            gap = observations
+            gap.sort()
+            decay1 = 0.9
+            reward3 = 0
+            for item in gap:
+                reward3 += decay1 * math.log10(item)
+                decay1 = decay1*decay1
+
+            if action == 0 or action == 1 or action == 2:
+                reward1 = observations[3]
+            else:
+                reward1 = -observations[3]
+
+            reward2 = -abs(observations[1] - observations[5])
+            reward = reward1 + 0.2 * reward2 + reward3
         else:
-            reward = -1
+            reward = -100
         return reward
 
     def _is_done(self):
@@ -126,4 +138,22 @@ class MyEnv(gym.Env):
         twist.linear.x = linear_speed; twist.linear.y = 0.0; twist.linear.z = 0.0
         twist.angular.x = 0.0; twist.angular.y = 0.0; twist.angular.z = angular_speed
         self.move_pub.publish(twist)
-        print(linear_speed, angular_speed)
+        # print(linear_speed, angular_speed)
+
+    def _collision_state_callback(self,msg):
+        self.is_collision = msg.data
+
+    def _laser_scan_callback(self,msg):
+        self.laser_scan = []
+        ranges = msg.ranges  # 获取激光雷达的距离数据
+        angle_min = msg.angle_min  # 激光雷达的最小角度
+        angle_increment = msg.angle_increment  # 激光雷达的角度增量
+        points = []  # 用来存储转换后的坐标点
+        collision_points = [] # 用来存储碰撞点
+        for i, r in enumerate(ranges):
+            if r == float ('Inf') or np.isinf(r):
+                self.laser_scan.append(msg.range_max)
+            elif np.isnan(r):
+                self.laser_scan.append(msg.range_min)
+            else:
+                self.laser_scan.append(round(r,3))        
