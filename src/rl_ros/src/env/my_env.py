@@ -7,15 +7,16 @@ import math
 from geometry_msgs.msg import Twist
 import rospy
 from std_srvs.srv import Empty
+from geometry_msgs.msg import Vector3
 
 class MyEnv(gym.Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
 
     def __init__(self):
-
+        rospy.init_node('env', anonymous=True)
         self.reset_world_proxy = rospy.ServiceProxy('/gazebo/reset_world', Empty)
         self.reset_simulation_proxy = rospy.ServiceProxy('/gazebo/reset_simulation', Empty)
-        self._cmd_vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
+        self.move_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
         self.action_space = spaces.Discrete(6)
         self.observation_space = spaces.Box(low=np.float32(0.1), high=np.float32(8.0), shape=(361,), dtype=np.float32)
 
@@ -25,7 +26,7 @@ class MyEnv(gym.Env):
         """
         assert self.action_space.contains(action), "无效的动作"
 
-        velocity = np.float32(1.5)
+        velocity = np.float32(0.5)
         steer = np.float32(math.pi / 3)
         angular_speed = 0
         linear_speed = 0
@@ -54,7 +55,19 @@ class MyEnv(gym.Env):
         done = self._is_done()
         observation = 1
         info = {}
+        rate = rospy.Rate(5)
 
+        # move_msg = Vector3()
+        # move_msg.x = linear_speed
+        # move_msg.z = angular_speed
+        # # rate.sleep()
+        # self.move_pub.publish(move_msg)
+        self._move_base(linear_speed, angular_speed)
+
+
+        
+        rate.sleep()
+        # self.move_pub.publish(move_msg)
 
         return observation, reward, done, info
         # done = bool(
@@ -76,7 +89,7 @@ class MyEnv(gym.Env):
         # self.gazebo.resetSim()
         # self.gazebo.resetWorld()
         self.reset_world_proxy()
-        self.reset_simulation_proxy()
+        # self.reset_simulation_proxy()
         # We need the following line to seed self.np_random
         # self.action_space.seed(42)
 
@@ -106,3 +119,11 @@ class MyEnv(gym.Env):
     #     if self.window is not None:
     #         pygame.display.quit()
     #         pygame.quit()
+
+
+    def _move_base(self, linear_speed, angular_speed):
+        twist = Twist()
+        twist.linear.x = linear_speed; twist.linear.y = 0.0; twist.linear.z = 0.0
+        twist.angular.x = 0.0; twist.angular.y = 0.0; twist.angular.z = angular_speed
+        self.move_pub.publish(twist)
+        print(linear_speed, angular_speed)

@@ -13,6 +13,7 @@ import math
 import numpy as np
 from shapely.geometry import Point, Polygon
 from visualization_msgs.msg import Marker, MarkerArray
+from std_msgs.msg import Bool
 
 
 def _top_laser_scan_callback(msg):
@@ -42,7 +43,8 @@ def _top_laser_scan_callback(msg):
                       (car[0][3], car[1][3])]
     polygon = Polygon(polygon_points)
 
-
+    collision_msg = Bool()
+    collision_msg.data = False  # 设置布尔值
 
     # 遍历激光雷达的距离数据，并将其转换为笛卡尔坐标
     ranges = msg.ranges  # 获取激光雷达的距离数据
@@ -61,11 +63,14 @@ def _top_laser_scan_callback(msg):
             point = Point(x, y)
             if polygon.contains(point):
                 collision_points.append((x, y))
+                collision_msg.data = True
             else:
                 points.append((x, y))
 
     print(len(collision_points))
    
+    
+    collision_pub_.publish(collision_msg)
 
     # 创建 MarkerArray 消息，用于发布多个点
     marker_array = MarkerArray()
@@ -132,7 +137,7 @@ if __name__=="__main__":
     rospy.init_node("ros_rl", anonymous=True)#初始化节点 名称：test
     polygon_pub_ = rospy.Publisher('/polygon', PolygonStamped, queue_size=10)
     marker_pub = rospy.Publisher('/visualization_marker_array', MarkerArray, queue_size=10)
-
+    collision_pub_ = rospy.Publisher('/collision', Bool, queue_size=10)
     # logger.info("Waiting for /scan to be READY...")
     # rospy.Subscriber("/scan", Twist, _laser_scan_callback)
     # while laser_scan is None and not rospy.is_shutdown():
