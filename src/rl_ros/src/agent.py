@@ -33,9 +33,9 @@ class Agent:
         self.q_next = DeepQNetwork(input_dims, n_actions)
         self.q_next.compile(optimizer=Adam(learning_rate=lr))
 
-    def save_models(self):
-        self.q_eval.save(self.chkpt_dir+'q_eval')
-        self.q_next.save(self.chkpt_dir+'q_next')
+    def save_models(self, filename):
+        self.q_eval.save(self.chkpt_dir + filename + '/' +'q_eval')
+        self.q_next.save(self.chkpt_dir + filename + '/' +'q_next')
         print('... models saved successfully ...')
 
     def load_models(self):
