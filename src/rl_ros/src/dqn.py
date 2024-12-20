@@ -3,9 +3,10 @@
 from registration import StartRL_ROS_Environment
 from agent import Agent
 from loguru import logger
+from colorama import Fore, Back, Style, init
 
 if __name__=="__main__":
-
+    init(autoreset=True)
     with open('output.txt', 'w') as file:
         file.write("\n")
 
@@ -15,7 +16,7 @@ if __name__=="__main__":
                   n_actions=env.action_space.n, mem_size=50000, eps_min=0.05,
                   batch_size=32, replace=1000, eps_dec=8e-6,
                   chkpt_dir='model/')
-    n_games = 500000
+    n_games = 50000000
     for i in range(n_games):
         observation = env.reset()
         done = False
@@ -25,7 +26,6 @@ if __name__=="__main__":
             action = agent.choose_action(observation)
             print("n_steps:".ljust(10), f"{n_steps:<10}", "action:".ljust(10), f"{action:<10}")
             observation_, reward, done, info = env.step(action)
-            print(f"obs:".ljust(10), f"{observation_[0]:<10} | {observation_[1]:<10} | {observation_[2]:<10} | {observation_[3]:<10} | {observation_[4]:<10} | {observation_[5]:<10} | {observation_[6]:<10}")
 
             sore += reward
             agent.store_transition(observation, action,
@@ -33,9 +33,9 @@ if __name__=="__main__":
             agent.learn()
             observation = observation_
             n_steps += 1
-            logger.warning(f"{i:<10} | {sore/n_steps:<10}")
+            print(Fore.GREEN + f"{i:<10} | {sore/n_steps:<10}")
 
-        if(i % 100 == 0 and i != 0):
+        if(i % 500 == 0 and i != 0):
             agent.save_models(str(i))
         with open('output.txt', 'a') as file:
             file.write(str(i)+","+str(sore/n_steps)+"\n")

@@ -12,6 +12,7 @@ from sensor_msgs.msg import LaserScan
 from nav_msgs.msg import Odometry
 from scipy.spatial import distance
 from colorama import Fore, Back, Style, init
+import statistics
 
 import time
 
@@ -32,8 +33,8 @@ class MyEnv(gym.Env):
         self.point_end = (9,7)
         self.distance = distance.euclidean(self.sunny_pose, self.point_end)
         self.action_space = spaces.Discrete(8)
-        self.observation_space = spaces.Box(low=np.float32(0.1), high=np.float32(25.0), shape=(7,), dtype=np.float32)
-
+        self.observation_space = spaces.Box(low=np.float32(0.1), high=np.float32(25.0), shape=(223,), dtype=np.float32)
+        self.laser_midindex = 0
 
     def step(self, action):
         assert self.action_space.contains(action), "无效的动作"
@@ -93,24 +94,31 @@ class MyEnv(gym.Env):
 
     def _compute_reward(self, observations, action, done):
 
+        reward = 0
+        reward1 = 0
+        reward2 = 0
+        reward3 = 0
+        reward4 = 0
         if not done:
 
             gap = []
             for item in observations:
-                gap.append(item)
+                if(item < 2.0):
+                    gap.append(item)
+                else:
+                    gap.append(2.0)
             gap.sort()
-            decay1 = 0.9
-            reward1 = 0
+            decay1 = 0.8
             for item in gap:
                 reward1 += decay1 * math.log10(item)
                 decay1 = decay1*decay1
-
+            reward1 *= 0.2
             if action == 0 or action == 1 or action == 2:
-                reward2 = observations[3]
+                reward2 = statistics.mean(observations[self.laser_midindex - 30 -1:self.laser_midindex + 30])
             else:
-                reward2 = -observations[3]
+                reward2 = -statistics.mean(observations[self.laser_midindex - 30 -1:self.laser_midindex + 30])
 
-            reward3 = -abs(observations[1] - observations[5])
+            reward3 =  -abs(statistics.mean(observations[self.laser_midindex - 95 -1:self.laser_midindex - 85]) - statistics.mean(observations[self.laser_midindex + 85 -1:self.laser_midindex + 95]))
 
             dis_ = distance.euclidean(self.sunny_pose, self.point_end)
             reward4 = (self.distance - dis_) * 10
@@ -119,16 +127,16 @@ class MyEnv(gym.Env):
             
 
             reward = reward1 + reward2 + reward3 + reward4
-            print("reward:".ljust(10), f"{round(reward, 3):<10} | {round(reward1, 3):<10} | {round(reward2, 3):<10} | {round(reward3, 3):<10} | {round(reward4, 3):<10}")
 
         else:
             if distance.euclidean(self.sunny_pose, self.point_end) < 0.36:
                 reward = 100
-                print(Fore.GREEN + "arrive")
+                # print(Fore.GREEN + "arrive")
             else:
                 reward = -100
-                print(Fore.RED + "collision")
-            print("reward:".ljust(10), f"{reward:<10} | {0:<10} | {0:<10} | {0:<10} | {0:<10}")
+                # print(Fore.RED + "collision")
+                
+        print("reward:".ljust(10), f"{round(reward, 3):<10} | {round(reward1, 3):<10} | {round(reward2, 3):<10} | {round(reward3, 3):<10} | {round(reward4, 3):<10}")
 
         return reward
 
@@ -152,6 +160,7 @@ class MyEnv(gym.Env):
     def _laser_scan_callback(self,msg):
         self.laser_scan = []
         ranges = msg.ranges  # 获取激光雷达的距离数据
+        self.laser_midindex = int(len(ranges) / 2)
         angle_min = msg.angle_min  # 激光雷达的最小角度
         angle_increment = msg.angle_increment  # 激光雷达的角度增量
         points = []  # 用来存储转换后的坐标点
