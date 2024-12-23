@@ -13,9 +13,15 @@ if __name__=="__main__":
     env = StartRL_ROS_Environment('MyEnv-v0')
     agent = Agent(gamma=0.99, epsilon=0.5, lr=0.0001,
                   input_dims=(env.observation_space.shape),
-                  n_actions=env.action_space.n, mem_size=50000, eps_min=0.05,
+                  n_actions=env.action_space.n, mem_size=50000, eps_min=0.00,
                   batch_size=32, replace=1000, eps_dec=8e-6,
                   chkpt_dir='model/')
+
+    load_checkpoint = False
+    if load_checkpoint:
+        agent.load_models("3000")
+        agent.epsilon = agent.eps_min
+
     n_games = 50000000
     for i in range(n_games):
         observation = env.reset()

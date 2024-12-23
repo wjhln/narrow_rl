@@ -51,6 +51,14 @@ def RegisterRL_Ros_Env(task_env, max_episode_steps=10000):
         )
         # import our training environment
         result = True
+    elif task_env == 'MyEnv-v1':
+        register(
+            id=task_env,
+            entry_point='env.my_env_continue:MyContinuousEnv',
+            max_episode_steps=max_episode_steps,
+        )
+        # import our training environment
+        result = True
 
 
     if result:

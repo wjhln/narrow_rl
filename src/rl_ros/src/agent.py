@@ -38,9 +38,9 @@ class Agent:
         self.q_next.save(self.chkpt_dir + filename + '/' +'q_next')
         print('... models saved successfully ...')
 
-    def load_models(self):
-        self.q_eval = keras.models.load_model(self.chkpt_dir+'q_eval')
-        self.q_next = keras.models.load_model(self.chkpt_dir+'q_next')
+    def load_models(self, filename):
+        self.q_eval = keras.models.load_model(self.chkpt_dir + filename + '/' + 'q_eval')
+        self.q_next = keras.models.load_model(self.chkpt_dir + filename + '/' + 'q_next')
         print('... models loaded successfully ...')
 
     def store_transition(self, state, action, reward, state_, done):

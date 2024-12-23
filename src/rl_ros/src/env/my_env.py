@@ -35,6 +35,8 @@ class MyEnv(gym.Env):
         self.action_space = spaces.Discrete(8)
         self.observation_space = spaces.Box(low=np.float32(0.1), high=np.float32(25.0), shape=(223,), dtype=np.float32)
         self.laser_midindex = 0
+        self.time_reward = 0
+        self.center_point = self.sunny_pose
 
     def step(self, action):
         assert self.action_space.contains(action), "无效的动作"
@@ -102,7 +104,7 @@ class MyEnv(gym.Env):
         if not done:
 
             gap = []
-            for item in observations:
+            for item in observations[self.laser_midindex - 60 -1:self.laser_midindex + 60]:
                 if(item < 2.0):
                     gap.append(item)
                 else:
@@ -112,20 +114,26 @@ class MyEnv(gym.Env):
             for item in gap:
                 reward1 += decay1 * math.log10(item)
                 decay1 = decay1*decay1
-            reward1 *= 0.2
+            # reward1 *= 0.2
+
             if action == 0 or action == 1 or action == 2:
                 reward2 = statistics.mean(observations[self.laser_midindex - 30 -1:self.laser_midindex + 30])
             else:
                 reward2 = -statistics.mean(observations[self.laser_midindex - 30 -1:self.laser_midindex + 30])
 
-            reward3 =  -abs(statistics.mean(observations[self.laser_midindex - 95 -1:self.laser_midindex - 85]) - statistics.mean(observations[self.laser_midindex + 85 -1:self.laser_midindex + 95]))
+            # reward3 =  -abs(statistics.mean(observations[self.laser_midindex - 95 -1:self.laser_midindex - 85]) - statistics.mean(observations[self.laser_midindex + 85 -1:self.laser_midindex + 95]))
 
             dis_ = distance.euclidean(self.sunny_pose, self.point_end)
             reward4 = (self.distance - dis_) * 10
             self.distance = dis_
 
             
-
+            # if self._is_point_inside_circle(self.sunny_pose, self.center_point, 0.3):
+            #     self.time_reward -= 0.01
+            # else:
+            #     self.time_reward = 0
+            #     self.center_point = self.sunny_pose
+                
             reward = reward1 + reward2 + reward3 + reward4
 
         else:
@@ -136,12 +144,13 @@ class MyEnv(gym.Env):
                 reward = -100
                 # print(Fore.RED + "collision")
                 
-        print("reward:".ljust(10), f"{round(reward, 3):<10} | {round(reward1, 3):<10} | {round(reward2, 3):<10} | {round(reward3, 3):<10} | {round(reward4, 3):<10}")
+        print("reward:".ljust(10), f"{round(reward, 3):<10} | {round(reward1, 3):<10} | {round(reward2, 3):<10} | {round(reward3, 3):<10} | {round(reward4, 3):<10} | {round(self.time_reward, 3):<10}")
 
         return reward
 
     def _is_done(self):
         if self.is_collision or distance.euclidean(self.sunny_pose, self.point_end) < 0.36:
+            self.time_reward = 0
             return True
         else:
             return False
@@ -175,3 +184,9 @@ class MyEnv(gym.Env):
 
     def _sunny_state_callback(self,msg):
         self.sunny_pose = (msg.pose.pose.position.x,msg.pose.pose.position.y)
+
+    def _is_point_inside_circle(self,point, circle_center, radius):
+        x, y = point
+        h, k = circle_center
+        distance_squared = (x - h) ** 2 + (y - k) ** 2
+        return distance_squared <= radius ** 2
