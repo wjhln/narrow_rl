@@ -82,7 +82,7 @@ class MyContinuousEnv(gym.Env):
         if not done:
 
             gap = []
-            for item in observations[self.laser_midindex - 60 -1:self.laser_midindex + 60]:
+            for item in observations:
                 if(item < 2.0):
                     gap.append(item)
                 else:
@@ -92,7 +92,7 @@ class MyContinuousEnv(gym.Env):
             for item in gap:
                 reward1 += decay1 * math.log10(item)
                 decay1 = decay1*decay1
-            # reward1 *= 0.2
+            reward1 *= 0.5
 
             if action[0] > 0:
                 reward2 = statistics.mean(observations[self.laser_midindex - 30 -1:self.laser_midindex + 30])

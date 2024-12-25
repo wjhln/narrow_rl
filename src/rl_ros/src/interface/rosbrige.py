@@ -23,26 +23,26 @@ def _top_laser_scan_callback(msg):
     car_W = 0.72
     # car = np.array([[car_W / 2, -car_W / 2, -car_W / 2, car_W / 2],
     #                 [-car_RB, -car_RB, car_RF, car_RF]])
-    poly_x = [0.61, 0.57, -0.158, -0.208, -0.208, -0.158, 0.57, 0.61]
+    poly_x = [0.61, 0.57, -0.158, -0.258, -0.258, -0.158, 0.57, 0.61]
     poly_y = [-0.29, -0.38, -0.38, -0.278, 0.278, 0.38, 0.38, 0.29]
     car = np.array([poly_x, poly_y])
     rot1 = np.array([[math.cos(yaw), -math.sin(yaw)],
                      [math.sin(yaw), math.cos(yaw)]])
     # car = np.dot(rot1, car)
     # car += np.array([[x], [y]])
-    # polygon_msg = PolygonStamped()
-    # polygon_msg.header.frame_id = 'base_link'
-    # polygon_msg.polygon.points = [
-    #     Point32(x=car[0][0], y=car[1][0], z=0.0),
-    #     Point32(x=car[0][1], y=car[1][1], z=0.0),
-    #     Point32(x=car[0][2], y=car[1][2], z=0.0),
-    #     Point32(x=car[0][3], y=car[1][3], z=0.0),
-    #     Point32(x=car[0][4], y=car[1][4], z=0.0),
-    #     Point32(x=car[0][5], y=car[1][5], z=0.0),
-    #     Point32(x=car[0][6], y=car[1][6], z=0.0),
-    #     Point32(x=car[0][7], y=car[1][7], z=0.0),
-    # ]
-    # polygon_pub_.publish(polygon_msg)
+    polygon_msg = PolygonStamped()
+    polygon_msg.header.frame_id = 'base_link'
+    polygon_msg.polygon.points = [
+        Point32(x=car[0][0], y=car[1][0], z=0.0),
+        Point32(x=car[0][1], y=car[1][1], z=0.0),
+        Point32(x=car[0][2], y=car[1][2], z=0.0),
+        Point32(x=car[0][3], y=car[1][3], z=0.0),
+        Point32(x=car[0][4], y=car[1][4], z=0.0),
+        Point32(x=car[0][5], y=car[1][5], z=0.0),
+        Point32(x=car[0][6], y=car[1][6], z=0.0),
+        Point32(x=car[0][7], y=car[1][7], z=0.0),
+    ]
+    polygon_pub_.publish(polygon_msg)
 
 
     polygon_points = [(car[0][0], car[1][0]), 

@@ -24,7 +24,7 @@ if __name__ == '__main__':
     env = StartRL_ROS_Environment(ENV_NAME)
     # env = gym.make('LunarLanderContinuous-v2')
     n_tests = 2
-    n_games = 1000
+    n_games = 100000
     best_score = -np.inf
     # rospy.logerr('env.reward_range[0]: ' + str(best_score))
 
